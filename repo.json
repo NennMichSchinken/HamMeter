@@ -8,6 +8,7 @@
     "Punchline": "A minimalist, easy-to-read combat tracker for FFXIV.",
     "RepoUrl": "https://github.com/NennMichSchinken/HamMeter",
     "ApplicableVersion": "any",
+    "IconUrl": "https://raw.githubusercontent.com/NennMichSchinken/HamMeter/main/images/icon.png",
     "DalamudApiLevel": 15,
     "Tags": ["UI", "combat", "meter", "dps"],
     "DownloadLinkInstall": "https://github.com/NennMichSchinken/HamMeter/releases/latest/download/HamMeter.zip",

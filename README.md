@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="images/icon.png" width="160" alt="HamMeter logo">
+</p>
+
 # HamMeter
 
 A minimalist, easy-to-read combat tracker and damage meter for **Final Fantasy XIV**, built as a [Dalamud](https://github.com/goatcorp/Dalamud) plugin. It reads encounter data from **IINACT** over Dalamud IPC and presents it in a clean, modern, fully customizable overlay.
