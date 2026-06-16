@@ -38,6 +38,10 @@ HamMeter is distributed through a custom Dalamud plugin repository (damage meter
 - `/hammeter clear` — reset the current data
 - `/hammeter end` — end the current IINACT encounter
 
+## Credits
+
+Concept, design, and UX/UI by **NennMichSchinken**. The implementation was written with the help of AI (Claude) under my direction — every design decision, layout, and feature was specified, reviewed, and tested by me.
+
 ## License
 
 Released under the MIT License. See [LICENSE](LICENSE).
