@@ -1,0 +1,17 @@
+[
+  {
+    "Author": "NennMichSchinken",
+    "Name": "HamMeter",
+    "InternalName": "HamMeter",
+    "AssemblyVersion": "1.0.0.0",
+    "Description": "HamMeter is a minimalist combat tracker and damage meter for Final Fantasy XIV, built with a strict focus on an easy-to-read layout! It reads encounter data from IINACT over Dalamud IPC.",
+    "Punchline": "A minimalist, easy-to-read combat tracker for FFXIV.",
+    "RepoUrl": "https://github.com/NennMichSchinken/HamMeter",
+    "ApplicableVersion": "any",
+    "DalamudApiLevel": 15,
+    "Tags": ["UI", "combat", "meter", "dps"],
+    "DownloadLinkInstall": "https://github.com/NennMichSchinken/HamMeter/releases/latest/download/HamMeter.zip",
+    "DownloadLinkUpdate": "https://github.com/NennMichSchinken/HamMeter/releases/latest/download/HamMeter.zip",
+    "DownloadLinkTesting": "https://github.com/NennMichSchinken/HamMeter/releases/latest/download/HamMeter.zip"
+  }
+]
