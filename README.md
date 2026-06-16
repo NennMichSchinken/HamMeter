@@ -4,6 +4,12 @@ A minimalist, easy-to-read combat tracker and damage meter for **Final Fantasy X
 
 > **Requires [IINACT](https://github.com/marzent/IINACT)** to be installed and running. HamMeter does not parse the game itself — it reads the encounter data that IINACT provides.
 
+## Screenshots
+
+![The HamMeter overlay](images/Meter.png)
+
+![The settings window](images/Settings.png)
+
 ## Features
 
 - Clean, modern overlay with rounded bars and a customizable header
