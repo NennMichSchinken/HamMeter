@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using SimpleMeter.Data;
+using HamMeter.Data;
 
-namespace SimpleMeter;
+namespace HamMeter;
 
 public static class TestData
 {

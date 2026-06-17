@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace SimpleMeter;
+namespace HamMeter;
 
 public static class JobInfo
 {

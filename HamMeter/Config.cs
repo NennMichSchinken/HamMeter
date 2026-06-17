@@ -5,7 +5,7 @@ using Dalamud.Configuration;
 using Dalamud.Plugin;
 using Newtonsoft.Json;
 
-namespace SimpleMeter;
+namespace HamMeter;
 
 public class Config : IPluginConfiguration
 {

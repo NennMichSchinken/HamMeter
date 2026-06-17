@@ -1,6 +1,6 @@
-using SimpleMeter.Data;
+using HamMeter.Data;
 
-namespace SimpleMeter;
+namespace HamMeter;
 
 public enum Metric
 {

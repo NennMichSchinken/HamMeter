@@ -1,7 +1,7 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 
-namespace SimpleMeter;
+namespace HamMeter;
 
 // Central design tokens for the modern UI. Change a value here once and every
 // dialog / dropdown that uses these helpers updates automatically.

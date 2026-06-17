@@ -4,9 +4,9 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Services;
 using Newtonsoft.Json.Linq;
-using SimpleMeter.Data;
+using HamMeter.Data;
 
-namespace SimpleMeter;
+namespace HamMeter;
 
 // Connects to IINACT over Dalamud IPC, receives "CombatData" events,
 // keeps the current encounter and a history of finished encounters.

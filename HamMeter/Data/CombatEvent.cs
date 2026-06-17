@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Newtonsoft.Json;
 
-namespace SimpleMeter.Data;
+namespace HamMeter.Data;
 
 // One "CombatData" push from IINACT: encounter totals + one entry per combatant.
 public class CombatEvent

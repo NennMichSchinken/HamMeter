@@ -12,9 +12,9 @@ using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using SimpleMeter.Data;
+using HamMeter.Data;
 
-namespace SimpleMeter;
+namespace HamMeter;
 
 public sealed class Plugin : IDalamudPlugin
 {
@@ -580,7 +580,35 @@ public sealed class Plugin : IDalamudPlugin
         float tagW = this.TextW("WWW", leftSize - 1f) + 6f;
         Vector4 tagCol = baseCol;
         tagCol.W = 0.9f;
-        dl.AddRectFilled(new Vector2(x, boxTop), new Vector2(x + tagW, boxBottom), Col(tagCol), 2f);
+        float tagRound = 2f;
+        Vector2 ta = new(x, boxTop);
+        Vector2 tb = new(x + tagW, boxBottom);
+        dl.AddRectFilled(ta, tb, Col(tagCol), tagRound);
+
+        // Same depth gradient + top sheen as the bars (DrawBar), so the tag reads as a
+        // mini-bar instead of a flat swatch. Scaled by the tag's own opacity, mirroring
+        // how the bar scales by BarOpacity. (AddRectFilledMultiColor can't round corners,
+        // but at this 2px radius the square overlay is visually indistinguishable.)
+        uint tagClear = Col(new Vector4(0f, 0f, 0f, 0f));
+        uint tagDark = Col(new Vector4(0f, 0f, 0f, 0.24f * tagCol.W));
+        dl.AddRectFilledMultiColor(ta, tb, tagClear, tagClear, tagDark, tagDark);
+
+        uint tagSheen = Col(new Vector4(1f, 1f, 1f, 0.12f * tagCol.W));
+        uint tagSheenT = Col(new Vector4(1f, 1f, 1f, 0f));
+        dl.AddRectFilledMultiColor(
+            new Vector2(ta.X + tagRound, ta.Y + 1f),
+            new Vector2(tb.X - tagRound, ta.Y + (boxH * 0.5f)),
+            tagSheen, tagSheen, tagSheenT, tagSheenT);
+
+        // Adaptive border: a light edge lifts dark/saturated jobs off the bar, while a
+        // dark edge defines light jobs (where a light border would vanish). Choice is
+        // driven by the job colour's perceived luminance, so it stays consistent across
+        // every job. Alpha scaled by the tag's opacity, like the gradient above.
+        float tagLum = (baseCol.X * 0.2126f) + (baseCol.Y * 0.7152f) + (baseCol.Z * 0.0722f);
+        Vector4 borderCol = tagLum < 0.5f
+            ? new Vector4(1f, 1f, 1f, 0.32f * tagCol.W)
+            : new Vector4(0f, 0f, 0f, 0.45f * tagCol.W);
+        dl.AddRect(ta, tb, Col(borderCol), tagRound, ImDrawFlags.RoundCornersAll, 1f);
 
         string label = job.ToUpperInvariant();
         float lw = this.TextW(label, leftSize - 1f);

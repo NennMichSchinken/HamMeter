@@ -2,7 +2,7 @@ using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
 
-namespace SimpleMeter;
+namespace HamMeter;
 
 public sealed class SettingsWindow
 {
