@@ -4,7 +4,7 @@
     "Name": "HamMeter",
     "InternalName": "HamMeter",
     "AssemblyVersion": "1.0.3.0",
-    "Changelog": "Job-Tags im Glas-Look (durchscheinende Füllung, Lichtkante, an die Job-Farbe angepasster Rand & Text) – gut lesbar bei hellen wie dunklen Jobs. Balken-Verlauf reicht jetzt sauber bis in die abgerundeten Enden (vorher links/rechts flach).",
+    "Changelog": "Reworked the job tags with a glass look. The border and text now follow each job's colour so they stay readable. Fixed the bar gradient not reaching the rounded left/right ends.",
     "Description": "HamMeter is a minimalist combat tracker and damage meter for Final Fantasy XIV, built with a strict focus on an easy-to-read layout! It reads encounter data from IINACT over Dalamud IPC.",
     "Punchline": "A minimalist, easy-to-read combat tracker for FFXIV.",
     "RepoUrl": "https://github.com/NennMichSchinken/HamMeter",
