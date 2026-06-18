@@ -501,9 +501,11 @@ public sealed class Plugin : IDalamudPlugin
         float round = m_config.RoundedBars ? 6f : 0f;
         dl.AddRectFilled(pos, new Vector2(pos.X + width, pos.Y + barH), track, round);
 
-        // Filled portion: rounded base colour, then a vertical depth gradient over the
-        // FULL width (darker toward the bottom) so the rounded caps get depth too. The
-        // darkening sits transparent at the top, so the top rounded corners stay clean.
+        // Filled portion: rounded base colour, then depth shading. The shading is drawn
+        // as rounded-corner bands rather than a multicolor gradient — a multicolor rect
+        // can't round its corners, which previously forced the top sheen to be inset and
+        // left the rounded left/right caps flat. RoundCornersTop/Bottom make the sheen and
+        // shadow follow the caps exactly, across the full width.
         float fillW = width * fraction;
         Vector2 fa = pos;
         Vector2 fb = new(pos.X + fillW, pos.Y + barH);
@@ -511,20 +513,17 @@ public sealed class Plugin : IDalamudPlugin
 
         if (fillW > 2f)
         {
-            uint clearC = Col(new Vector4(0f, 0f, 0f, 0f));
-            uint darkC = Col(new Vector4(0f, 0f, 0f, 0.24f * m_config.BarOpacity));
-            dl.AddRectFilledMultiColor(fa, fb, clearC, clearC, darkC, darkC);
+            float op = m_config.BarOpacity;
 
-            // Soft top sheen in the centre (inset so it never pokes past the corners).
-            if (fillW > (round * 2f) + 4f)
-            {
-                uint sheen = Col(new Vector4(1f, 1f, 1f, 0.12f * m_config.BarOpacity));
-                uint sheenT = Col(new Vector4(1f, 1f, 1f, 0f));
-                dl.AddRectFilledMultiColor(
-                    new Vector2(fa.X + round, fa.Y + 1f),
-                    new Vector2(fb.X - round, fa.Y + (barH * 0.5f)),
-                    sheen, sheen, sheenT, sheenT);
-            }
+            // Bottom shadow — three layered bands fading in toward the base (max ~0.24).
+            dl.AddRectFilled(new Vector2(fa.X, fa.Y + (barH * 0.40f)), fb, Col(new Vector4(0f, 0f, 0f, 0.07f * op)), round, ImDrawFlags.RoundCornersBottom);
+            dl.AddRectFilled(new Vector2(fa.X, fa.Y + (barH * 0.62f)), fb, Col(new Vector4(0f, 0f, 0f, 0.08f * op)), round, ImDrawFlags.RoundCornersBottom);
+            dl.AddRectFilled(new Vector2(fa.X, fa.Y + (barH * 0.82f)), fb, Col(new Vector4(0f, 0f, 0f, 0.09f * op)), round, ImDrawFlags.RoundCornersBottom);
+
+            // Top sheen — three layered bands fading down from the top (max ~0.12).
+            dl.AddRectFilled(fa, new Vector2(fb.X, fa.Y + (barH * 0.58f)), Col(new Vector4(1f, 1f, 1f, 0.04f * op)), round, ImDrawFlags.RoundCornersTop);
+            dl.AddRectFilled(fa, new Vector2(fb.X, fa.Y + (barH * 0.34f)), Col(new Vector4(1f, 1f, 1f, 0.04f * op)), round, ImDrawFlags.RoundCornersTop);
+            dl.AddRectFilled(fa, new Vector2(fb.X, fa.Y + (barH * 0.16f)), Col(new Vector4(1f, 1f, 1f, 0.04f * op)), round, ImDrawFlags.RoundCornersTop);
         }
 
         uint white = Col(new Vector4(1f, 1f, 1f, 1f));
@@ -576,44 +575,61 @@ public sealed class Plugin : IDalamudPlugin
             }
         }
 
-        // Text tag with uniform width (based on a 3-letter reference so all align).
+        // Text tag — a frosted "glass" chip. It floats over the coloured bar: a
+        // translucent tint lets the bar shimmer through, a thin white frost veil lifts it
+        // so it reads lighter than the bar (and softens very dark *and* very light jobs
+        // alike), and a top light edge + soft bottom shadow give depth. No real backdrop
+        // blur is possible in an ImGui draw list, so this is a stylised glass look.
         float tagW = this.TextW("WWW", leftSize - 1f) + 6f;
-        Vector4 tagCol = baseCol;
-        tagCol.W = 0.9f;
-        float tagRound = 2f;
+        float tagRound = 3f;
         Vector2 ta = new(x, boxTop);
         Vector2 tb = new(x + tagW, boxBottom);
-        dl.AddRectFilled(ta, tb, Col(tagCol), tagRound);
 
-        // Same depth gradient + top sheen as the bars (DrawBar), so the tag reads as a
-        // mini-bar instead of a flat swatch. Scaled by the tag's own opacity, mirroring
-        // how the bar scales by BarOpacity. (AddRectFilledMultiColor can't round corners,
-        // but at this 2px radius the square overlay is visually indistinguishable.)
-        uint tagClear = Col(new Vector4(0f, 0f, 0f, 0f));
-        uint tagDark = Col(new Vector4(0f, 0f, 0f, 0.24f * tagCol.W));
-        dl.AddRectFilledMultiColor(ta, tb, tagClear, tagClear, tagDark, tagDark);
+        Vector4 tint = baseCol;
+        tint.W = 0.34f;
+        dl.AddRectFilled(ta, tb, Col(tint), tagRound);
+        dl.AddRectFilled(ta, tb, Col(new Vector4(1f, 1f, 1f, 0.10f)), tagRound);
 
-        uint tagSheen = Col(new Vector4(1f, 1f, 1f, 0.12f * tagCol.W));
-        uint tagSheenT = Col(new Vector4(1f, 1f, 1f, 0f));
-        dl.AddRectFilledMultiColor(
-            new Vector2(ta.X + tagRound, ta.Y + 1f),
-            new Vector2(tb.X - tagRound, ta.Y + (boxH * 0.5f)),
-            tagSheen, tagSheen, tagSheenT, tagSheenT);
+        // Top light edge + bottom shadow. Inset horizontally by the corner radius so the
+        // square gradient overlays don't poke past the rounded corners.
+        float gx = ta.X + tagRound;
+        float gxr = tb.X - tagRound;
+        float mid = ta.Y + (boxH * 0.5f);
+        uint clearW = Col(new Vector4(1f, 1f, 1f, 0f));
+        uint sheenW = Col(new Vector4(1f, 1f, 1f, 0.22f));
+        dl.AddRectFilledMultiColor(new Vector2(gx, ta.Y + 1f), new Vector2(gxr, mid), sheenW, sheenW, clearW, clearW);
+        uint clearB = Col(new Vector4(0f, 0f, 0f, 0f));
+        uint darkB = Col(new Vector4(0f, 0f, 0f, 0.12f));
+        dl.AddRectFilledMultiColor(new Vector2(gx, mid), new Vector2(gxr, tb.Y - 1f), clearB, clearB, darkB, darkB);
 
-        // Adaptive border: a light edge lifts dark/saturated jobs off the bar, while a
-        // dark edge defines light jobs (where a light border would vanish). Choice is
-        // driven by the job colour's perceived luminance, so it stays consistent across
-        // every job. Alpha scaled by the tag's opacity, like the gradient above.
+        // Adaptive accents, tuned to sit close together so the tags read as one set:
+        // dark/saturated jobs get a softly dimmed light edge + white label; light jobs get
+        // a gently lightened dark edge + a deep (not black) label drawn from their own hue.
+        // Threshold on the job colour's perceived luminance.
         float tagLum = (baseCol.X * 0.2126f) + (baseCol.Y * 0.7152f) + (baseCol.Z * 0.0722f);
-        Vector4 borderCol = tagLum < 0.5f
-            ? new Vector4(1f, 1f, 1f, 0.32f * tagCol.W)
-            : new Vector4(0f, 0f, 0f, 0.45f * tagCol.W);
+        bool darkJob = tagLum < 0.5f;
+        Vector4 borderCol = darkJob
+            ? new Vector4(1f, 1f, 1f, 0.20f)   // dimmed light edge on dark jobs
+            : new Vector4(0f, 0f, 0f, 0.26f);  // lightened dark edge on light jobs
         dl.AddRect(ta, tb, Col(borderCol), tagRound, ImDrawFlags.RoundCornersAll, 1f);
+
+        // Label: white on dark jobs; on light jobs a softened deep tone of the job's own
+        // hue (~0.40 luminance) rather than harsh black, so the two cases read close.
+        Vector4 textCol;
+        if (darkJob)
+        {
+            textCol = new Vector4(1f, 0.996f, 0.949f, 1f);
+        }
+        else
+        {
+            float f = tagLum > 0.001f ? (0.40f / tagLum) : 1f;
+            textCol = new Vector4(Math.Min(1f, baseCol.X * f), Math.Min(1f, baseCol.Y * f), Math.Min(1f, baseCol.Z * f), 1f);
+        }
 
         string label = job.ToUpperInvariant();
         float lw = this.TextW(label, leftSize - 1f);
         float lx = x + ((tagW - lw) / 2f);
-        this.Text(dl, new Vector2(lx, pos.Y + ((barH - (leftSize - 1f)) / 2f)), label, leftSize - 1f, Col(new Vector4(1f, 1f, 1f, 1f)), false);
+        this.Text(dl, new Vector2(lx, pos.Y + ((barH - (leftSize - 1f)) / 2f)), label, leftSize - 1f, Col(textCol), false);
         return x + tagW + 5f;
     }
 
